@@ -66,3 +66,22 @@ class UnknownShapeTypeError(GraphicEditorError):
 
 class EditorOperationError(GraphicEditorError):
     """Операция невозможна в текущем состоянии редактора."""
+
+
+class UnsupportedFormatError(GraphicEditorError):
+    """Формат файла не поддерживается (поддерживаются .json и .xml)."""
+
+    def __init__(self, path):
+        self.path = str(path)
+        super().__init__(
+            f"Формат файла «{self.path}» не поддерживается. Используйте .json или .xml"
+        )
+
+
+class DocumentFormatError(GraphicEditorError):
+    """Файл документа повреждён или не соответствует структуре."""
+
+    def __init__(self, path, reason):
+        self.path = str(path)
+        self.reason = reason
+        super().__init__(f"Файл «{self.path}» повреждён: {reason}")

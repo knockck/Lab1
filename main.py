@@ -7,10 +7,16 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 from exceptions import GraphicEditorError
 from repository_layer import (InMemoryCanvasRepository, InMemoryLayerRepository,
-                              InMemoryShapeRepository)
+                              InMemoryShapeRepository, JsonDrawingStorage)
 from service_layer import DrawingService, HistoryService, LayerService, Param, ShapeService
+
+BASE_DIR = Path(__file__).resolve().parent
+DEFAULT_OPEN_PATH = BASE_DIR / "examples" / "drawing.json"
+DEFAULT_SAVE_PATH = BASE_DIR / "output" / "drawing.json"
 
 
 # ---------------- ввод данных ----------------
@@ -90,6 +96,8 @@ class ConsoleApp:
             ("17", "Удалить слой", self.delete_layer),
             ("18", "Статистика", self.show_statistics),
             ("19", "Отменить последнее действие", self.undo),
+            ("20", "Сохранить в файл (JSON)", self.save),
+            ("21", "Открыть файл (JSON)", self.load),
         ]
 
     def menu_text(self) -> str:
@@ -116,7 +124,13 @@ class ConsoleApp:
                 action()
             except GraphicEditorError as error:        # собственные исключения
                 print(f"[Ошибка редактора] {error}")
-            except ValueError as error:                # встроенные исключения
+            except FileNotFoundError as error:         # встроенные исключения
+                print(f"[Ошибка] Файл не найден: {error.filename}")
+            except PermissionError as error:
+                print(f"[Ошибка] Нет доступа к файлу: {error.filename}")
+            except IsADirectoryError as error:
+                print(f"[Ошибка] Указана папка, а не файл: {error.filename}")
+            except ValueError as error:
                 print(f"[Ошибка ввода] {error}")
             except TypeError as error:
                 print(f"[Ошибка типа] {error}")
@@ -155,6 +169,16 @@ class ConsoleApp:
     def undo(self) -> None:
         self.drawings.undo()
         print("Последнее действие отменено.")
+
+    def save(self) -> None:
+        default = DEFAULT_SAVE_PATH.relative_to(BASE_DIR)
+        path = ask(f"Путь к файлу .json (Enter — {default}): ") or DEFAULT_SAVE_PATH
+        print("Сохранено в", self.drawings.save(path))
+
+    def load(self) -> None:
+        default = DEFAULT_OPEN_PATH.relative_to(BASE_DIR)
+        path = ask(f"Путь к файлу .json (Enter — {default}): ") or DEFAULT_OPEN_PATH
+        print("Открыт:", self.drawings.load(path))
 
     # ---------------- фигуры ----------------
     def ask_param(self, param: Param):
@@ -261,9 +285,10 @@ def build_app() -> ConsoleApp:
     layer_repository = InMemoryLayerRepository()
     shape_repository = InMemoryShapeRepository()
     history = HistoryService(canvas_repository, layer_repository, shape_repository)
+    storages = {".json": JsonDrawingStorage()}
 
     drawings = DrawingService(canvas_repository, layer_repository, shape_repository,
-                              history)
+                              history, storages)
     layers = LayerService(layer_repository, shape_repository, canvas_repository, history)
     shapes = ShapeService(shape_repository, layer_repository, canvas_repository, history)
 
