@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# IDE
+.idea/
+.vscode/
+
+# Файлы, которые сохраняет программа
+output/
+
+# draw.io
+*.drawio.bkp
+.$*.drawio
