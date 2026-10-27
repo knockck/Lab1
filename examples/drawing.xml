@@ -1,0 +1,52 @@
+<?xml version='1.0' encoding='utf-8'?>
+<graphic_editor version="1">
+  <document title="Домик у озера" width="800" height="600" background="#FFFFFF" active_layer="Дом">
+    <layer name="Фон" visible="true" locked="false">
+      <shape type="Rectangle" id="1" name="Небо" visible="true">
+        <style stroke="#87CEEB" fill="#87CEEB" stroke_width="0" />
+        <geometry x="0" y="0" width="800" height="380" />
+      </shape>
+      <shape type="Rectangle" id="2" name="Трава" visible="true">
+        <style stroke="#008000" fill="#7CB342" stroke_width="0" />
+        <geometry x="0" y="380" width="800" height="220" />
+      </shape>
+      <shape type="Circle" id="3" name="Солнце" visible="true">
+        <style stroke="#FFA500" fill="#FFFF00" stroke_width="3" />
+        <geometry cx="680" cy="90" r="50" />
+      </shape>
+      <shape type="Ellipse" id="4" name="Озеро" visible="true">
+        <style stroke="#1565C0" fill="#42A5F5CC" stroke_width="2" />
+        <geometry cx="180" cy="470" rx="110" ry="40" />
+      </shape>
+    </layer>
+    <layer name="Дом" visible="true" locked="false">
+      <shape type="Rectangle" id="5" name="Стены" visible="true">
+        <style stroke="#8B4513" fill="#FFE0B2" stroke_width="2" />
+        <geometry x="380" y="260" width="240" height="180" />
+      </shape>
+      <shape type="Polygon" id="6" name="Крыша" visible="true">
+        <style stroke="#8B4513" fill="#C62828" stroke_width="2" />
+        <geometry>
+          <point x="360" y="260" />
+          <point x="500" y="150" />
+          <point x="640" y="260" />
+        </geometry>
+      </shape>
+      <shape type="Rectangle" id="7" name="Дверь" visible="true">
+        <style stroke="#8B4513" fill="#8D6E63" stroke_width="2" />
+        <geometry x="470" y="340" width="60" height="100" />
+      </shape>
+      <shape type="Line" id="8" name="Фундамент" visible="true">
+        <style stroke="#000000" fill="none" stroke_width="3" />
+        <geometry x1="380" y1="440" x2="620" y2="440" />
+      </shape>
+    </layer>
+    <layer name="Подписи" visible="true" locked="true">
+      <shape type="TextLabel" id="9" name="Заголовок" visible="true">
+        <style stroke="#000000" fill="none" stroke_width="1" />
+        <geometry x="40" y="40" />
+        <text font_family="Arial" font_size="32">Мой дом</text>
+      </shape>
+    </layer>
+  </document>
+</graphic_editor>
