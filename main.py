@@ -11,7 +11,7 @@ from pathlib import Path
 
 from exceptions import GraphicEditorError
 from repository_layer import (InMemoryCanvasRepository, InMemoryLayerRepository,
-                              InMemoryShapeRepository, JsonDrawingStorage)
+                              InMemoryShapeRepository, JsonDrawingStorage, XmlDrawingStorage)
 from service_layer import DrawingService, HistoryService, LayerService, Param, ShapeService
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -96,8 +96,8 @@ class ConsoleApp:
             ("17", "Удалить слой", self.delete_layer),
             ("18", "Статистика", self.show_statistics),
             ("19", "Отменить последнее действие", self.undo),
-            ("20", "Сохранить в файл (JSON)", self.save),
-            ("21", "Открыть файл (JSON)", self.load),
+            ("20", "Сохранить в файл (JSON/XML)", self.save),
+            ("21", "Открыть файл (JSON/XML)", self.load),
         ]
 
     def menu_text(self) -> str:
@@ -172,12 +172,12 @@ class ConsoleApp:
 
     def save(self) -> None:
         default = DEFAULT_SAVE_PATH.relative_to(BASE_DIR)
-        path = ask(f"Путь к файлу .json (Enter — {default}): ") or DEFAULT_SAVE_PATH
+        path = ask(f"Путь к файлу .json или .xml (Enter — {default}): ") or DEFAULT_SAVE_PATH
         print("Сохранено в", self.drawings.save(path))
 
     def load(self) -> None:
         default = DEFAULT_OPEN_PATH.relative_to(BASE_DIR)
-        path = ask(f"Путь к файлу .json (Enter — {default}): ") or DEFAULT_OPEN_PATH
+        path = ask(f"Путь к файлу .json или .xml (Enter — {default}): ") or DEFAULT_OPEN_PATH
         print("Открыт:", self.drawings.load(path))
 
     # ---------------- фигуры ----------------
@@ -285,7 +285,7 @@ def build_app() -> ConsoleApp:
     layer_repository = InMemoryLayerRepository()
     shape_repository = InMemoryShapeRepository()
     history = HistoryService(canvas_repository, layer_repository, shape_repository)
-    storages = {".json": JsonDrawingStorage()}
+    storages = {".json": JsonDrawingStorage(), ".xml": XmlDrawingStorage()}
 
     drawings = DrawingService(canvas_repository, layer_repository, shape_repository,
                               history, storages)
