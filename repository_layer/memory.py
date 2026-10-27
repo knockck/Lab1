@@ -8,6 +8,8 @@
 from __future__ import annotations
 
 from data_layer import Canvas, Layer, Shape
+from exceptions import (DuplicateLayerError, EditorOperationError,
+                        LayerNotFoundError, ShapeNotFoundError)
 from .interfaces import CanvasRepository, LayerRepository, ShapeRepository
 
 
@@ -22,14 +24,14 @@ class InMemoryShapeRepository(ShapeRepository):
         if entity.id is None:
             entity.id = self._next_id
         elif entity.id in self._items:
-            raise RuntimeError(f"Фигура с id={entity.id} уже существует")
+            raise EditorOperationError(f"Фигура с id={entity.id} уже существует")
         self._next_id = max(self._next_id, entity.id + 1)
         self._items[entity.id] = entity.clone()
         return entity.clone()
 
     def get(self, key: int) -> Shape:
         if key not in self._items:
-            raise KeyError(f"Фигура с id={key} не найдена")
+            raise ShapeNotFoundError(key)
         return self._items[key].clone()
 
     def get_all(self) -> list[Shape]:
@@ -37,13 +39,13 @@ class InMemoryShapeRepository(ShapeRepository):
 
     def update(self, entity: Shape) -> Shape:
         if entity.id not in self._items:
-            raise KeyError(f"Фигура с id={entity.id} не найдена")
+            raise ShapeNotFoundError(entity.id)
         self._items[entity.id] = entity.clone()
         return entity.clone()
 
     def delete(self, key: int) -> Shape:
         if key not in self._items:
-            raise KeyError(f"Фигура с id={key} не найдена")
+            raise ShapeNotFoundError(key)
         return self._items.pop(key)
 
     def exists(self, key: int) -> bool:
@@ -65,13 +67,13 @@ class InMemoryLayerRepository(LayerRepository):
 
     def add(self, entity: Layer) -> Layer:
         if entity.name in self._items:
-            raise ValueError(f"Слой «{entity.name}» уже существует")
+            raise DuplicateLayerError(entity.name)
         self._items[entity.name] = entity.clone()
         return entity.clone()
 
     def get(self, key: str) -> Layer:
         if key not in self._items:
-            raise KeyError(f"Слой «{key}» не найден")
+            raise LayerNotFoundError(key)
         return self._items[key].clone()
 
     def get_all(self) -> list[Layer]:
@@ -79,13 +81,13 @@ class InMemoryLayerRepository(LayerRepository):
 
     def update(self, entity: Layer) -> Layer:
         if entity.name not in self._items:
-            raise KeyError(f"Слой «{entity.name}» не найден")
+            raise LayerNotFoundError(entity.name)
         self._items[entity.name] = entity.clone()
         return entity.clone()
 
     def delete(self, key: str) -> Layer:
         if key not in self._items:
-            raise KeyError(f"Слой «{key}» не найден")
+            raise LayerNotFoundError(key)
         return self._items.pop(key)
 
     def exists(self, key: str) -> bool:

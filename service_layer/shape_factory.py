@@ -10,6 +10,7 @@ from typing import Callable, NamedTuple
 
 from data_layer import (Circle, Ellipse, Line, Point, Polygon, Rectangle, Shape, Style,
                         TextLabel)
+from exceptions import UnknownShapeTypeError
 
 
 class Param(NamedTuple):
@@ -76,5 +77,5 @@ class ShapeFactory:
 
     def _kind(self, kind: str) -> ShapeKind:
         if kind not in self.KINDS:
-            raise ValueError(f"Неизвестный тип фигуры: {kind!r}")
+            raise UnknownShapeTypeError(kind)
         return self.KINDS[kind]

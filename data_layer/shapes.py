@@ -11,13 +11,14 @@ import copy
 import math
 from abc import ABC, abstractmethod
 
+from exceptions import InvalidShapeError, UnknownShapeTypeError
 from .primitives import Point, Style, compact, to_number
 
 
 def _positive(value, name: str) -> float:
     value = to_number(value, name)
     if value <= 0:
-        raise ValueError(f"{name} должна быть больше нуля (получено {compact(value)})")
+        raise InvalidShapeError(f"{name} должна быть больше нуля (получено {compact(value)})")
     return value
 
 
@@ -48,7 +49,7 @@ class Shape(ABC):
         if value is not None:
             value = int(value)
             if value <= 0:
-                raise ValueError(
+                raise InvalidShapeError(
                     f"Идентификатор фигуры должен быть положительным (получено {value})")
         self._id = value
 
@@ -101,7 +102,7 @@ class Shape(ABC):
     def check_factor(factor) -> float:
         factor = to_number(factor, "коэффициент масштабирования")
         if factor <= 0:
-            raise ValueError("Коэффициент масштабирования должен быть больше нуля")
+            raise InvalidShapeError("Коэффициент масштабирования должен быть больше нуля")
         return factor
 
     def clone(self) -> Shape:
@@ -124,7 +125,7 @@ class Shape(ABC):
         type_name = data["type"]
         shape_class = SHAPE_TYPES.get(type_name)
         if shape_class is None:
-            raise ValueError(f"Неизвестный тип фигуры: {type_name!r}")
+            raise UnknownShapeTypeError(type_name)
         return shape_class.build(
             data,
             style=Style.from_dict(data["style"]),
@@ -299,7 +300,7 @@ class Line(Shape):
 
     def __init__(self, start: Point, end: Point, **common):
         if start == end:
-            raise ValueError("Начало и конец линии не должны совпадать")
+            raise InvalidShapeError("Начало и конец линии не должны совпадать")
         self.start = start
         self.end = end
         super().__init__(**common)
@@ -354,11 +355,11 @@ class Polygon(Shape):
     def __init__(self, points: list[Point], **common):
         points = list(points)
         if len(points) < 3:
-            raise ValueError(
+            raise InvalidShapeError(
                 f"У многоугольника должно быть не меньше 3 вершин (получено {len(points)})")
         self._points = points
         if math.isclose(self.area(), 0.0, abs_tol=1e-9):
-            raise ValueError("Вершины многоугольника лежат на одной прямой")
+            raise InvalidShapeError("Вершины многоугольника лежат на одной прямой")
         super().__init__(**common)
 
     @property
@@ -438,7 +439,7 @@ class TextLabel(Shape):
     def text(self, value) -> None:
         value = str(value)
         if not value.strip():
-            raise ValueError("Текст надписи не может быть пустым")
+            raise InvalidShapeError("Текст надписи не может быть пустым")
         self._text = value
 
     @property

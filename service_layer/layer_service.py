@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from data_layer import Layer
+from exceptions import EditorOperationError
 from repository_layer import CanvasRepository, LayerRepository, ShapeRepository
 from .history_service import HistoryService
 
@@ -65,7 +66,7 @@ class LayerService:
             neighbour_index = index + step
             if not 0 <= neighbour_index < len(ordered):
                 where = "выше" if step > 0 else "ниже"
-                raise RuntimeError(f"Слой «{name}» уже находится {where} всех")
+                raise EditorOperationError(f"Слой «{name}» уже находится {where} всех")
             layer, neighbour = ordered[index], ordered[neighbour_index]
             layer.order, neighbour.order = neighbour.order, layer.order
             self._layers.update(layer)
@@ -77,7 +78,7 @@ class LayerService:
         with self._history.track():
             layer = self._layers.get(name)
             if self._layers.count() == 1:
-                raise RuntimeError("Нельзя удалить единственный слой рисунка")
+                raise EditorOperationError("Нельзя удалить единственный слой рисунка")
             layer.check_editable()
             shapes = self._shapes.find_by_layer(name)
             for shape in shapes:

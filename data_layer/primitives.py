@@ -5,6 +5,7 @@ from __future__ import annotations
 import math
 import re
 
+from exceptions import InvalidColorError, InvalidShapeError
 
 
 def to_number(value, name: str) -> float:
@@ -110,7 +111,7 @@ class Color:
     @staticmethod
     def _check_component(value) -> int:
         if isinstance(value, bool) or not isinstance(value, int) or not 0 <= value <= 255:
-            raise ValueError(f"Некорректный цвет: {value!r}")
+            raise InvalidColorError(value)
         return value
 
     # Свойства только для чтения: цвет неизменяемый (как строка или число)
@@ -135,7 +136,7 @@ class Color:
         """Создаёт цвет из строки вида #RRGGBB или #RRGGBBAA."""
         match = cls._HEX_PATTERN.match(str(text).strip())
         if match is None:
-            raise ValueError(f"Некорректный цвет: {text!r}")
+            raise InvalidColorError(text)
         rgb, alpha = match.groups()
         return cls(int(rgb[0:2], 16), int(rgb[2:4], 16), int(rgb[4:6], 16),
                    int(alpha, 16) if alpha else 255)
@@ -184,7 +185,7 @@ class Style:
     def stroke_width(self, value) -> None:
         value = to_number(value, "толщина линии")
         if value < 0:
-            raise ValueError("Толщина линии не может быть отрицательной")
+            raise InvalidShapeError("Толщина линии не может быть отрицательной")
         self._stroke_width = value
 
     def copy(self) -> Style:

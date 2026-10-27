@@ -1,12 +1,13 @@
 """Точка входа: консольное приложение «Графический редактор».
 
-Здесь только интерфейс пользователя — ввод и вывод.
+Здесь только интерфейс пользователя — ввод, вывод и обработка исключений.
 Бизнес-логика находится в service_layer, хранение — в repository_layer,
 сущности — в data_layer. Функция build_app() собирает слои вместе.
 """
 
 from __future__ import annotations
 
+from exceptions import GraphicEditorError
 from repository_layer import (InMemoryCanvasRepository, InMemoryLayerRepository,
                               InMemoryShapeRepository)
 from service_layer import DrawingService, HistoryService, LayerService, Param, ShapeService
@@ -21,19 +22,28 @@ def ask_float(prompt: str, default: float | None = None) -> float:
     text = ask(prompt)
     if not text and default is not None:
         return default
-    return float(text.replace(",", "."))
+    try:
+        return float(text.replace(",", "."))
+    except ValueError:
+        raise ValueError(f"«{text}» не является числом") from None
 
 
 def ask_int(prompt: str) -> int:
     text = ask(prompt)
-    return int(text)
+    try:
+        return int(text)
+    except ValueError:
+        raise ValueError(f"«{text}» не является целым числом") from None
 
 
 def parse_point(text: str) -> tuple[float, float]:
     parts = text.replace(",", " ").split()
     if len(parts) != 2:
         raise ValueError(f"Точку нужно ввести как два числа через пробел, получено «{text}»")
-    return float(parts[0]), float(parts[1])
+    try:
+        return float(parts[0]), float(parts[1])
+    except ValueError:
+        raise ValueError(f"Координаты точки должны быть числами, получено «{text}»") from None
 
 
 def ask_point(prompt: str) -> tuple[float, float]:
@@ -102,7 +112,16 @@ class ConsoleApp:
             if action is None:
                 print("Нет такого пункта меню.")
                 continue
-            action()
+            try:
+                action()
+            except GraphicEditorError as error:        # собственные исключения
+                print(f"[Ошибка редактора] {error}")
+            except ValueError as error:                # встроенные исключения
+                print(f"[Ошибка ввода] {error}")
+            except TypeError as error:
+                print(f"[Ошибка типа] {error}")
+            except Exception as error:                 # на случай непредвиденной ошибки
+                print(f"[Непредвиденная ошибка] {type(error).__name__}: {error}")
 
     # ---------------- рисунок ----------------
     def show_drawing(self) -> None:
@@ -255,8 +274,12 @@ def build_app() -> ConsoleApp:
 
 def main() -> None:
     app = build_app()
-    app.run()
-    print("До свидания!")
+    try:
+        app.run()
+    except (KeyboardInterrupt, EOFError):
+        print("\nРабота прервана пользователем.")
+    finally:
+        print("До свидания!")
 
 
 if __name__ == "__main__":

@@ -5,6 +5,7 @@ from __future__ import annotations
 from contextlib import contextmanager
 
 from data_layer import Drawing
+from exceptions import EditorOperationError
 from repository_layer import CanvasRepository, LayerRepository, ShapeRepository
 
 
@@ -57,7 +58,7 @@ class HistoryService:
 
     def undo(self) -> None:
         if not self._undo_stack:
-            raise RuntimeError("Нечего отменять")
+            raise EditorOperationError("Нечего отменять")
         self.restore(self._undo_stack.pop())
 
     def clear(self) -> None:

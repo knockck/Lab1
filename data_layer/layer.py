@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import copy
 
+from exceptions import LayerLockedError
 
 
 class Layer:
@@ -32,7 +33,7 @@ class Layer:
     def check_editable(self) -> None:
         """Проверяет, что слой можно изменять."""
         if self.locked:
-            raise RuntimeError(f"Слой «{self.name}» заблокирован")
+            raise LayerLockedError(self.name)
 
     def clone(self) -> Layer:
         return copy.deepcopy(self)
