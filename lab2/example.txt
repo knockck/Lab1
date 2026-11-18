@@ -1,0 +1,4 @@
+Пример отчёта: "C:\Учёба\Лабораторная работа\Отчёт.docx"
+Копии: D:\Backup\archive.zip, (\\server\share\docs\README)
+E:\Program Files\App\LICENSE
+Некорректные пути: C:relative.txt "C:\Temp\NUL.txt" "D:\bad?.txt"
